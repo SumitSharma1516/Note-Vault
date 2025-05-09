@@ -1,0 +1,17 @@
+User API 
+
+POST  - http://localhost:5000/auth/register - register
+POST - http://localhost:5000/auth/login    - login
+PUT - http://localhost:5000/user/update   - update
+GET  - http://localhost:5000/user/dashboard - dashboard
+Post - http://localhost:5000/notes/upload   - upload
+
+Admin API
+
+POST - http://localhost:5000/admin/login login
+GET - http://localhost:5000/admin/users user list
+GET - http://localhost:5000/notes/all - user upload data list
+
+API 
+
+http://localhost:5000/notes/filters - collage, course, semeter then output - http://localhost:5000/notes/all - user upload data list

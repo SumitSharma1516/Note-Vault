@@ -1,0 +1,18 @@
+✅ 1. USER APIs
+Method	Route	Functionality
+POST	/auth/register	Register a new user
+POST	/auth/login	Login user (returns JWT token)
+PUT	/user/update	Update user profile (username, password, photo)
+GET	/user/dashboard	Get user's own uploaded notes + stats
+POST	/notes/upload	Upload a new note (PDF + metadata)
+GET	/notes/filters	Public notes filter (by college, course, semester)
+
+✅ 2. ADMIN APIs (Static login)
+Method	Route	Functionality
+POST	/admin/login	Admin login (static email/password)
+GET	/admin/users	Get list of all registered users
+GET	/notes/all	Get all notes uploaded by all users
+
+🆓 3. PUBLIC API (No login required)
+Method	Route	Functionality
+GET	/notes/filters	Get all notes with optional filters

@@ -14,6 +14,9 @@ dotenv.config();
 // Connect to MongoDB
 connectDB();
 
+//Test route
+app.get('/',(req,res)=>{res.send('NoteVualt API is working')})
+
 // Middleware
 app.use(express.json());
 app.use(cors());

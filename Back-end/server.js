@@ -15,7 +15,7 @@ dotenv.config();
 connectDB();
 
 //Test route
-app.get('/',(req,res)=>{res.send('NoteVualt API is working')})
+app.get('/',(req,res)=>{res.send('NoteVault API is working')})
 
 // Middleware
 app.use(express.json());

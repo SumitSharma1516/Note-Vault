@@ -5,9 +5,6 @@ const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Secure admin check using role
-  const isAdmin = user?.role === 'admin';
-
   const logoutAndRedirect = () => {
     handleLogout();
     navigate('/');

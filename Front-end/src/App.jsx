@@ -9,6 +9,8 @@ import SearchNotes from '../components/SearchNotes';
 import Footer from '../components/Footer';
 import Login from '../components/Login';
 import Registration from '../components/Registration';
+
+//✅ User Component
 import ProfileUpdate from '../User-components/UserProfile';
 import UploadNotes from '../User-components/UploadNotes';
 import UserStats from '../User-components/UserStats';
@@ -111,6 +113,10 @@ function App() {
               <Route path="/profile/stats" element={<UserStats user={user} />} />
               <Route path="/profile/update" element={<UserProfile user={user} />} />
               <Route path="/profile/upload-notes" element={<UploadNotes />} />
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AllUsers />} />
+              <Route path="/admin/notes" element={<AllNotes />} />
               <Route
                 path=""
                 element={

@@ -5,16 +5,19 @@ const UserProfile = ({ user }) => {
   const [username, setUsername] = useState(user.username);
   const [password, setPassword] = useState('');
   const [profilePic, setProfilePic] = useState(null);
-
+console.log(username)
   const handleUpdate = async () => {
     const formData = new FormData();
     formData.append('username', username);
     if (password) formData.append('password', password);
     if (profilePic) formData.append('photo', profilePic);
+     const userData=JSON.parse(localStorage.getItem('user'));
+     const token=userData?.token;
 
+     console.log(formData)
     try {
-      await axios.put('/api/user/update', formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      await axios.put('http://localhost:5000/user/update', formData, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       alert("Profile Updated!");
     } catch (err) {

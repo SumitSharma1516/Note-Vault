@@ -1,6 +1,6 @@
 {
   "name": "front-end",
-  "homepage": "https://username.github.io/repository-name",
+  "homepage": "https://SumitSharma1516.github.io/Note-Vault/Front-end",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist --no-verify"
   },
   "dependencies": {
     "@react-pdf-viewer/core": "^3.12.0",

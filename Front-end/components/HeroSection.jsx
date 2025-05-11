@@ -17,7 +17,7 @@ const HeroSection = () => {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch('https://note-vault-hiiy.onrender.com//notes/filters');
+        const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
         const data = await response.json();
         setFilters(data);
       } catch (err) {

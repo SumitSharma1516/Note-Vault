@@ -15,7 +15,7 @@ const Login = ({ handleLogin, setIsLoginOpen }) => {
       if (username === 'Sumitshar2452@gmail.com') {
         // Admin login
         console.log("admin")
-        response = await axios.post('https://note-vault-hiiy.onrender.com//admin/login', {
+        response = await axios.post('https://note-vault-hiiy.onrender.com/admin/login', {
           email: username,
           password,
         });
@@ -28,7 +28,7 @@ const Login = ({ handleLogin, setIsLoginOpen }) => {
       } else {
         // Regular user login
         console.log("user")
-        response = await axios.post('https://note-vault-hiiy.onrender.com//auth/login', {
+        response = await axios.post('https://note-vault-hiiy.onrender.com/auth/login', {
           username,
           password,
         });

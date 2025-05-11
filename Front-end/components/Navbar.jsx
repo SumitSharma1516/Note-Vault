@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
+console.log(user)
   const logoutAndRedirect = () => {
     handleLogout();
     navigate('/');
@@ -84,7 +84,7 @@ const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
               <button className="block w-full text-left hover:text-yellow-300" onClick={() => setIsLoginOpen(true)}>Login</button>
               <button className="block w-full text-left hover:text-yellow-300" onClick={() => setIsRegisterOpen(true)}>Register</button>
             </>
-          ) : isAdmin ? (
+          ) : user.role === 'admin' ? (
             <>
               <Link to="/admin/dashboard" className="block hover:text-yellow-300">Admin Dashboard</Link>
               <Link to="/admin/users" className="block hover:text-yellow-300">All Users</Link>

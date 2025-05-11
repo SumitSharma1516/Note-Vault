@@ -100,7 +100,7 @@ function App() {
           {/* Admin Routes */}
           {isAdmin && (
             <>
-              <Route path="/" element={<AdminDashboard />} />
+              {/* <Route path="/" element={<AdminDashboard />} /> */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AllUsers />} />
               <Route path="/admin/notes" element={<AllNotes />} />
@@ -110,13 +110,9 @@ function App() {
           {/* User Routes */}
           {user && !isAdmin && (
             <>
-              <Route path="/profile/stats" element={<UserStats user={user} />} />
+              <Route path="/" element={<UserStats user={user} />} />
               <Route path="/profile/update" element={<UserProfile user={user} />} />
               <Route path="/profile/upload-notes" element={<UploadNotes />} />
-              <Route path="/" element={<AdminDashboard />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AllUsers />} />
-              <Route path="/admin/notes" element={<AllNotes />} />
               <Route
                 path=""
                 element={

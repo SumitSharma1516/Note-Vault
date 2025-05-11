@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaUniversity, FaBookOpen, FaSearch, FaGraduationCap, FaDownload } from 'react-icons/fa';
 
 const SearchNotes = () => {
-  const [filters, setFilters] = useState({ colleges: ["-- Select Semester --"], courses: [], semesters: [] });
+  const [filters, setFilters] = useState({ colleges: [], courses: [], semesters: [] });
   const [college, setCollege] = useState('');
   const [course, setCourse] = useState('');
   const [semester, setSemester] = useState('');
@@ -10,18 +10,27 @@ const SearchNotes = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  console.log(filters)
+  // Debug log for filters
+  // console.log('Filters:', filters);
+
   // Fetch dropdown values (filters) from backend once
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch('http://localhost:5000/notes/filters');
+        const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
         const data = await response.json();
-        setFilters(data);
+        setFilters({
+          colleges: data.colleges || [],
+          courses: data.courses || [],
+          semesters: data.semesters || []
+        });
+        console.log('Filters fetched:', data); // Log filters data for debugging
       } catch (err) {
         console.error('Failed to load filters', err);
+        setError('Failed to load filter data.');
       }
     };
+
     fetchFilters();
   }, []);
 
@@ -32,14 +41,14 @@ const SearchNotes = () => {
     }
 
     setLoading(true);
-    setError('');
+    setError(''); // Clear previous errors
 
     try {
       const query = new URLSearchParams({ college, course, semester });
-      const response = await fetch(`http://localhost:5000/notes/all?${query.toString()}`);
+      const response = await fetch(`https://note-vault-hiiy.onrender.com/notes/all?${query.toString()}`);
       const data = await response.json();
 
-      if (data.notes?.length > 0) {
+      if (data.notes && data.notes.length > 0) {
         setNotes(data.notes);
       } else {
         setNotes([]);
@@ -62,7 +71,11 @@ const SearchNotes = () => {
           <label className="block text-lg mb-2"><FaUniversity className="inline mr-2 text-yellow-300" />College</label>
           <select value={college} onChange={(e) => setCollege(e.target.value)} className="w-full p-3 rounded-md text-black">
             <option value="">-- Select College --</option>
-            {filters.colleges.map((col, i) => <option key={i} value={col}>{col}</option>)}
+            {filters.colleges.length > 0 ? (
+              filters.colleges.map((col, i) => <option key={i} value={col}>{col}</option>)
+            ) : (
+              <option disabled>No colleges available</option>
+            )}
           </select>
         </div>
 
@@ -70,7 +83,11 @@ const SearchNotes = () => {
           <label className="block text-lg mb-2"><FaBookOpen className="inline mr-2 text-yellow-300" />Course</label>
           <select value={course} onChange={(e) => setCourse(e.target.value)} className="w-full p-3 rounded-md text-black">
             <option value="">-- Select Course --</option>
-            {/* {filters.courses.map((c, i) => <option key={i} value={c}>{c}</option>)} */}
+            {filters.courses.length > 0 ? (
+              filters.courses.map((c, i) => <option key={i} value={c}>{c}</option>)
+            ) : (
+              <option disabled>No courses available</option>
+            )}
           </select>
         </div>
 
@@ -78,7 +95,11 @@ const SearchNotes = () => {
           <label className="block text-lg mb-2"><FaGraduationCap className="inline mr-2 text-yellow-300" />Semester</label>
           <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-3 rounded-md text-black">
             <option value="">-- Select Semester --</option>
-            {/* {filters.semesters.map((s, i) => <option key={i} value={s}>{s}</option>)} */}
+            {filters.semesters.length > 0 ? (
+              filters.semesters.map((s, i) => <option key={i} value={s}>{s}</option>)
+            ) : (
+              <option disabled>No semesters available</option>
+            )}
           </select>
         </div>
 
@@ -91,14 +112,14 @@ const SearchNotes = () => {
         {loading && <p className="text-white text-xl">Loading notes...</p>}
         {error && <p className="text-red-400 text-xl">{error}</p>}
 
-        {notes.length > 0 && (
+        {notes.length > 0 ? (
           <div className="mt-6 space-y-6">
             {notes.map((note, i) => (
               <div key={i} className="bg-white text-black p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
                 <p className="mb-2">{note.description}</p>
                 <a
-                  href={`http://localhost:5000/uploads/${note.file}`}
+                  href={`http://localhost:5000/uploads/${note.fileUrl}`}
                   download
                   className="inline-block mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
                 >
@@ -107,6 +128,8 @@ const SearchNotes = () => {
               </div>
             ))}
           </div>
+        ) : (
+          <p className="text-white text-xl">No notes available for the selected filters.</p>
         )}
       </div>
     </section>

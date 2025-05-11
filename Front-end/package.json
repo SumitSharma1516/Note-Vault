@@ -1,6 +1,5 @@
 {
   "name": "front-end",
-  "homepage": "https://SumitSharma1516/Note-Vault/tree/main/Front-end",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+    "predeploy": "npm run build"
   },
   "dependencies": {
     "@react-pdf-viewer/core": "^3.12.0",

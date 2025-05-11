@@ -13,7 +13,7 @@ const UploadNotes = () => {
     formData.append('file', file);
 
     try {
-      await axios.post('http://localhost:5000/notes/upload', formData, {
+      await axios.post('https://note-vault-hiiy.onrender.com//notes/upload', formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       alert("Note Uploaded!");

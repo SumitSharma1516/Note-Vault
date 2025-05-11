@@ -16,7 +16,7 @@ console.log(username)
 
      console.log(formData)
     try {
-      await axios.put('http://localhost:5000/user/update', formData, {
+      await axios.put('https://note-vault-hiiy.onrender.com//user/update', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert("Profile Updated!");

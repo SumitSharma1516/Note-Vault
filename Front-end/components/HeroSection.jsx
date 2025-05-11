@@ -17,7 +17,7 @@ const HeroSection = () => {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch('http://localhost:5000/notes/filters');
+        const response = await fetch('https://note-vault-hiiy.onrender.com//notes/filters');
         const data = await response.json();
         setFilters(data);
       } catch (err) {
@@ -38,7 +38,7 @@ const HeroSection = () => {
 
     try {
       const query = new URLSearchParams({ college, course, semester });
-      const response = await fetch(`http://localhost:5000/notes/all?${query.toString()}`);
+      const response = await fetch(`https://note-vault-hiiy.onrender.com/notes/all?${query.toString()}`);
       const data = await response.json();
 
       if (data.notes?.length > 0) {

@@ -5,13 +5,13 @@ const AdminAllUsers = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/admin/users', {
+    axios.get('http://localhost:5000/admin/users', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
-      .then(res => setUsers(res.data.users))
+      .then(res => setUsers(res.data))
       .catch(err => console.error(err));
   }, []);
-
+// console.log(users)
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">All Registered Users</h2>
@@ -30,7 +30,7 @@ const AdminAllUsers = () => {
               <td className="p-2 border">{user.username}</td>
               <td className="p-2 border">{user.email}</td>
             </tr>
-          ))}
+           ))}
         </tbody>
       </table>
     </div>

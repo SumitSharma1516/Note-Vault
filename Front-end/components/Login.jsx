@@ -14,36 +14,47 @@ const Login = ({ handleLogin, setIsLoginOpen }) => {
 
       if (username === 'Sumitshar2452@gmail.com') {
         // Admin login
-        console.log("admin")
-        response = await axios.post('https://note-vault-hiiy.onrender.com/admin/login', {
+        console.log("admin");
+        response = await axios.post('http://localhost:5000/admin/login', {
           email: username,
           password,
         });
-  console.log(response)
+
         if (response.data.msg === 'Admin logged in successfully') {
-          handleLogin({ ...response.data.admin, email: username });
+          const { token, role, email } = response.data;
+          localStorage.setItem('token', token);
+          const adminUser = { token, role, email };
+          localStorage.setItem('user', JSON.stringify(adminUser));
+          handleLogin(adminUser);
+          setIsLoginOpen(false);
         } else {
           setError('Invalid admin credentials');
         }
       } else {
         // Regular user login
-        console.log("user")
-        response = await axios.post('https://note-vault-hiiy.onrender.com/auth/login', {
+        console.log("user");
+        response = await axios.post('http://localhost:5000/auth/login', {
           username,
           password,
         });
 
+        const { token, user } = response.data;
         if (response.data.msg === 'User Login') {
-          handleLogin({
-            token: response.data.token,
-            ...response.data.user,  // Include user details for front-end rendering
-          });
+          const userData = {
+            token,
+            role: 'user',
+            ...user,
+          };
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          handleLogin(userData);
           setIsLoginOpen(false);
         } else {
           setError('Invalid user credentials');
         }
       }
     } catch (err) {
+      console.error(err);
       setError('Login failed. Please try again.');
     }
   };

@@ -5,11 +5,11 @@ const AdminAllNotes = () => {
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/notes') // public API assumed
-      .then(res => setNotes(res.data.notes))
+    axios.get('http://localhost:5000/notes/all') // public API assumed
+      .then(res => setNotes(res.data))
       .catch(err => console.error(err));
   }, []);
-
+ console.log(notes)
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">All Uploaded Notes</h2>

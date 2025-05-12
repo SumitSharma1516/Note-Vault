@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
 import AboutSection from '../components/AboutSection';
@@ -10,8 +10,8 @@ import Footer from '../components/Footer';
 import Login from '../components/Login';
 import Registration from '../components/Registration';
 
-//✅ User Component
-import ProfileUpdate from '../User-components/UserProfile';
+// ✅ User Components
+import UserProfile from '../User-components/UserProfile';
 import UploadNotes from '../User-components/UploadNotes';
 import UserStats from '../User-components/UserStats';
 
@@ -19,7 +19,16 @@ import UserStats from '../User-components/UserStats';
 import AdminDashboard from '../Admin-components/AdminManage';
 import AllUsers from '../Admin-components/AdminAllUsers';
 import AllNotes from '../Admin-components/AdminAllNotes';
-import UserProfile from '../User-components/UserProfile';
+
+// Route protection for logged-in users
+function PrivateRoute({ children, user }) {
+  return user ? children : <Navigate to="/" replace />;
+}
+
+// Route protection for admin-only access
+function AdminRoute({ children, user, isAdmin }) {
+  return user && isAdmin ? children : <Navigate to="/" replace />;
+}
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -33,10 +42,10 @@ function App() {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        setIsAdmin(parsedUser.role === 'admin');  // Check role
+        setIsAdmin(parsedUser.role === 'admin');
       } catch (error) {
         console.error("Failed to parse stored user:", error);
-        localStorage.removeItem('user'); // clean up corrupt data
+        localStorage.removeItem('user');
       }
     }
   }, []);
@@ -72,6 +81,7 @@ function App() {
           isAdmin={isAdmin}
         />
 
+        {/* Modals */}
         {isLoginOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <Login handleLogin={handleLogin} setIsLoginOpen={setIsLoginOpen} />
@@ -84,47 +94,51 @@ function App() {
           </div>
         )}
 
+        {/* Routes */}
         <Routes>
-          {/* Public routes */}
-          {!user && (
-            <>
-              <Route path="/" element={<HeroSection />} />
-              <Route path="/about" element={<AboutSection />} />
-              <Route path="/services" element={<ServiceSection />} />
-              <Route path="/blog" element={<BlogSection />} />
-              <Route path="/search" element={<SearchNotes />} />
-              <Route path="/footer" element={<Footer />} />
-            </>
+          {/* Redirect Root */}
+          {!user ? (
+            <Route path="/" element={<HeroSection />} />
+          ) : isAdmin ? (
+            <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+          ) : (
+            <Route path="/" element={<Navigate to="/dashboard" />} />
           )}
+
+          {/* Public Routes */}
+          <Route path="/about" element={<AboutSection />} />
+          <Route path="/services" element={<ServiceSection />} />
+          <Route path="/blog" element={<BlogSection />} />
+          <Route path="/search" element={<SearchNotes />} />
+          <Route path="/footer" element={<Footer />} />
 
           {/* Admin Routes */}
-          {isAdmin && (
-            <>
-              {/* <Route path="/" element={<AdminDashboard />} /> */}
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AllUsers />} />
-              <Route path="/admin/notes" element={<AllNotes />} />
-            </>
-          )}
+          <Route
+            path="/admin/dashboard"
+            element={<AdminRoute user={user} isAdmin={isAdmin}><AdminDashboard /></AdminRoute>}
+          />
+          <Route
+            path="/admin/users"
+            element={<AdminRoute user={user} isAdmin={isAdmin}><AllUsers /></AdminRoute>}
+          />
+          <Route
+            path="/admin/notes"
+            element={<AdminRoute user={user} isAdmin={isAdmin}><AllNotes /></AdminRoute>}
+          />
 
           {/* User Routes */}
-          {user && !isAdmin && (
-            <>
-              <Route path="/" element={<UserStats user={user} />} />
-              <Route path="/profile/update" element={<UserProfile user={user} />} />
-              <Route path="/profile/upload-notes" element={<UploadNotes />} />
-              <Route
-                path=""
-                element={
-                  <ProfileUpdate
-                    user={user}
-                    onProfileUpdate={handleProfileUpdate}
-                    handleLogout={handleLogout}
-                  />
-                }
-              />
-            </>
-          )}
+          <Route
+            path="/profile/update"
+            element={<PrivateRoute user={user}><UserProfile user={user} /></PrivateRoute>}
+          />
+          <Route
+            path="/profile/upload-notes"
+            element={<PrivateRoute user={user}><UploadNotes /></PrivateRoute>}
+          />
+          <Route
+            path="/dashboard"
+            element={<PrivateRoute user={user}><UserStats user={user} /></PrivateRoute>}
+          />
 
           {/* Fallback */}
           <Route path="*" element={<HeroSection />} />

@@ -7,12 +7,16 @@ const noteRoutes = require('./routes/note');
 const adminRoutes = require('./routes/admin');
 const cors = require('cors');
 const app = express();
-
+const path = require('path');
 // Load environment variables
 dotenv.config();
 
 // Connect to MongoDB
 connectDB();
+
+// ✅ Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 //Test route
 app.get('/',(req,res)=>{res.send('NoteVault API is working')})

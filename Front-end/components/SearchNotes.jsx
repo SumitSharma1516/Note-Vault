@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaUniversity, FaBookOpen, FaSearch, FaGraduationCap, FaDownload } from 'react-icons/fa';
 
 const SearchNotes = () => {
-  const [filters, setFilters] = useState({ colleges: [], courses: [], semesters: [] });
+  const [filters, setFilters] = useState({ colleges: [""], courses: [], semesters: [] });
   const [college, setCollege] = useState('');
   const [course, setCourse] = useState('');
   const [semester, setSemester] = useState('');
@@ -11,20 +11,20 @@ const SearchNotes = () => {
   const [error, setError] = useState('');
 
   // Debug log for filters
-  // console.log('Filters:', filters);
-
+  //  console.log('Filters:', filters.colleges);
   // Fetch dropdown values (filters) from backend once
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
+        // const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
+        const response =  await fetch('http://localhost:5000/notes/filters')
         const data = await response.json();
         setFilters({
           colleges: data.colleges || [],
           courses: data.courses || [],
           semesters: data.semesters || []
-        });
-        console.log('Filters fetched:', data); // Log filters data for debugging
+        })
+      //  console.log('Filters fetched:', data.collage); // Log filters data for debugging
       } catch (err) {
         console.error('Failed to load filters', err);
         setError('Failed to load filter data.');
@@ -33,33 +33,35 @@ const SearchNotes = () => {
 
     fetchFilters();
   }, []);
+// console.log(filters)
+const fetchNotes = async () => {
+  if (!college || !course || !semester) {
+    setError('Please select college, course, and semester!');
+    return;
+  }
 
-  const fetchNotes = async () => {
-    if (!college || !course || !semester) {
-      setError('Please select college, course, and semester!');
-      return;
+  setLoading(true);
+  setError('');
+
+  try {
+    const query = new URLSearchParams({ college, course, semester });
+    const response = await fetch(`http://localhost:5000/notes/all?${query.toString()}`);
+    const data = await response.json();
+    console.log(data);
+
+    if (Array.isArray(data) && data.length > 0) {
+      setNotes(data);
+      setError('');
+    } else {
+      setNotes([]);
+      setError('No notes found for the selected criteria.');
     }
-
-    setLoading(true);
-    setError(''); // Clear previous errors
-
-    try {
-      const query = new URLSearchParams({ college, course, semester });
-      const response = await fetch(`https://note-vault-hiiy.onrender.com/notes/all?${query.toString()}`);
-      const data = await response.json();
-
-      if (data.notes && data.notes.length > 0) {
-        setNotes(data.notes);
-      } else {
-        setNotes([]);
-        setError('No notes found for the selected criteria.');
-      }
-    } catch (err) {
-      setError('Failed to fetch notes. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    setError('Failed to fetch notes. Please try again later.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="p-10 sm:p-16 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-center">
@@ -112,14 +114,13 @@ const SearchNotes = () => {
         {loading && <p className="text-white text-xl">Loading notes...</p>}
         {error && <p className="text-red-400 text-xl">{error}</p>}
 
-        {notes.length > 0 ? (
           <div className="mt-6 space-y-6">
             {notes.map((note, i) => (
               <div key={i} className="bg-white text-black p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
                 <p className="mb-2">{note.description}</p>
                 <a
-                  href={`http://localhost:5000/uploads/${note.fileUrl}`}
+                  href={`http://localhost:5000/${note.fileUrl}`}
                   download
                   className="inline-block mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
                 >
@@ -128,9 +129,7 @@ const SearchNotes = () => {
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-white text-xl">No notes available for the selected filters.</p>
-        )}
+      
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-console.log(user)
+// console.log(user)
   const logoutAndRedirect = () => {
     handleLogout();
     navigate('/');
@@ -58,7 +58,7 @@ console.log(user)
             </>
           ) : (
             <>
-              <Link to="/profile/stats" className="p-2 hover:text-yellow-300">Dashboard</Link>
+              <Link to="/dashboard" className="p-2 hover:text-yellow-300">Dashboard</Link>
               <Link to="/profile/upload-notes" className="p-2 hover:text-yellow-300">Upload Notes</Link>
               <Link to="/profile/update" className="p-2 hover:text-yellow-300">Update Profile</Link>
               <div className="flex items-center space-x-3">
@@ -93,7 +93,7 @@ console.log(user)
             </>
           ) : (
             <>
-              <Link to="/profile/stats" className="block hover:text-yellow-300">Dashboard</Link>
+              <Link to="/dashboard" className="block hover:text-yellow-300">Dashboard</Link>
               <Link to="/profile/upload-notes" className="block hover:text-yellow-300">Upload Notes</Link>
               <Link to="/profile/update" className="block hover:text-yellow-300">Update Profile</Link>
               <div className="flex items-center space-x-3 mt-2">

@@ -20,6 +20,8 @@ exports.adminLogin = (req, res) => {
     return res.status(200).json({
       msg: 'Admin logged in successfully',
       token,
+      role: "admin",
+      email
     });
   } else {
     return res.status(401).json({

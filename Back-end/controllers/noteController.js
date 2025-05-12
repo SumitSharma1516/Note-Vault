@@ -12,8 +12,8 @@ exports.uploadNotes = async (req, res) => {
       college,
       course,
       semester,
-      fileUrl: file.path,
-      uploadedBy: req.user.id,
+      fileUrl: file.filename,
+      uploadedBy: req.user._id
     });
 
     await newNote.save();
@@ -50,5 +50,18 @@ exports.getFilteredNotes = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
+  }
+};
+// Public: Get distinct filters for dropdowns
+exports.getFilters = async (req, res) => {
+  try {
+    const colleges = await Note.distinct("college");
+    const courses = await Note.distinct("course");
+    const semesters = await Note.distinct("semester");
+
+    res.json({ colleges, courses, semesters });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Failed to load filters' });
   }
 };

@@ -1,135 +1,176 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { FaUniversity, FaBookOpen, FaSearch, FaGraduationCap, FaDownload } from 'react-icons/fa';
 
+import {
+  fetchColleges,
+  fetchCourses,
+  fetchSemesters,
+  fetchNotes,
+  setCollege,
+  setCourse,
+  setSemester,
+  addWatchedNote,
+  resetWatchedNotes,
+} from '../Redux/slices/notesSlice';
+
+const API_URL = 'http://localhost:5000';
+
 const SearchNotes = () => {
-  const [filters, setFilters] = useState({ colleges: [""], courses: [], semesters: [] });
-  const [college, setCollege] = useState('');
-  const [course, setCourse] = useState('');
-  const [semester, setSemester] = useState('');
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const dispatch = useDispatch();
 
-  // Debug log for filters
-  //  console.log('Filters:', filters.colleges);
-  // Fetch dropdown values (filters) from backend once
+  const { filters = {}, selected = {}, notes = [], loading, error, watchedNotes = new Set() } = useSelector(state => state.notes);
+console.log(filters.colleges)
   useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        // const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
-        const response =  await fetch('http://localhost:5000/notes/filters')
-        const data = await response.json();
-        setFilters({
-          colleges: data.colleges || [],
-          courses: data.courses || [],
-          semesters: data.semesters || []
-        })
-      //  console.log('Filters fetched:', data.collage); // Log filters data for debugging
-      } catch (err) {
-        console.error('Failed to load filters', err);
-        setError('Failed to load filter data.');
-      }
-    };
+    dispatch(fetchColleges());
+  }, [dispatch]);
 
-    fetchFilters();
-  }, []);
-// console.log(filters)
-const fetchNotes = async () => {
-  if (!college || !course || !semester) {
-    setError('Please select college, course, and semester!');
-    return;
-  }
-
-  setLoading(true);
-  setError('');
-
-  try {
-    const query = new URLSearchParams({ college, course, semester });
-    const response = await fetch(`http://localhost:5000/notes/all?${query.toString()}`);
-    const data = await response.json();
-    console.log(data);
-
-    if (Array.isArray(data) && data.length > 0) {
-      setNotes(data);
-      setError('');
-    } else {
-      setNotes([]);
-      setError('No notes found for the selected criteria.');
+  useEffect(() => {
+    if (selected.college) {
+      dispatch(fetchCourses(selected.college));
     }
-  } catch (err) {
-    setError('Failed to fetch notes. Please try again later.');
-  } finally {
-    setLoading(false);
-  }
-};
+  }, [dispatch, selected.college]);
+
+  useEffect(() => {
+    if (selected.college && selected.course) {
+      dispatch(fetchSemesters({ college: selected.college, course: selected.course }));
+    }
+  }, [dispatch, selected.college, selected.course]);
+
+  useEffect(() => {
+    notes.forEach(note => {
+      if (!watchedNotes.has(note._id)) {
+        fetch(`${API_URL}/notes/watch/${note._id}`, { method: 'GET' }).catch(() => {});
+        dispatch(addWatchedNote(note._id));
+      }
+    });
+  }, [notes, watchedNotes, dispatch]);
+
+  const handleSearch = () => {
+    if (!selected.college || !selected.course || !selected.semester) {
+      alert('Please select college, course, and semester!');
+      return;
+    }
+    dispatch(fetchNotes({ college: selected.college, course: selected.course, semester: selected.semester }));
+    dispatch(resetWatchedNotes());
+  };
 
   return (
     <section className="p-10 sm:p-16 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-center">
       <h2 className="text-4xl font-bold mb-6">🔍 Search Notes & Papers</h2>
 
       <div className="space-y-6 max-w-xl mx-auto">
-        {/* Dropdowns */}
         <div className="text-left">
-          <label className="block text-lg mb-2"><FaUniversity className="inline mr-2 text-yellow-300" />College</label>
-          <select value={college} onChange={(e) => setCollege(e.target.value)} className="w-full p-3 rounded-md text-black">
+          <label htmlFor="college-select" className="block text-lg mb-2">
+            <FaUniversity className="inline mr-2 text-yellow-300" />
+            College
+          </label>
+          <select
+            id="college-select"
+            value={selected.college || ''}
+            onChange={e => dispatch(setCollege(e.target.value))}
+            className="w-full p-3 rounded-md text-black"
+            aria-label="Select College"
+          >
             <option value="">-- Select College --</option>
-            {filters.colleges.length > 0 ? (
-              filters.colleges.map((col, i) => <option key={i} value={col}>{col}</option>)
+            {filters.colleges && filters.colleges.length > 0 ? (
+              filters.colleges.map((col, i) => (
+                <option key={i} value={col}>{col}</option>
+              ))
             ) : (
-              <option disabled>No colleges available</option>
+              <option disabled>Loading Colleges...</option>
             )}
           </select>
         </div>
 
         <div className="text-left">
-          <label className="block text-lg mb-2"><FaBookOpen className="inline mr-2 text-yellow-300" />Course</label>
-          <select value={course} onChange={(e) => setCourse(e.target.value)} className="w-full p-3 rounded-md text-black">
+          <label htmlFor="course-select" className="block text-lg mb-2">
+            <FaBookOpen className="inline mr-2 text-yellow-300" />
+            Course
+          </label>
+          <select
+            id="course-select"
+            value={selected.course || ''}
+            onChange={e => dispatch(setCourse(e.target.value))}
+            className="w-full p-3 rounded-md text-black"
+            disabled={!selected.college}
+            aria-label="Select Course"
+          >
             <option value="">-- Select Course --</option>
-            {filters.courses.length > 0 ? (
-              filters.courses.map((c, i) => <option key={i} value={c}>{c}</option>)
+            {filters.courses && filters.courses.length > 0 ? (
+              filters.courses.map((c, i) => (
+                <option key={i} value={c}>{c}</option>
+              ))
             ) : (
-              <option disabled>No courses available</option>
+              <option disabled>{selected.college ? 'Loading Courses...' : 'Select College First'}</option>
             )}
           </select>
         </div>
 
         <div className="text-left">
-          <label className="block text-lg mb-2"><FaGraduationCap className="inline mr-2 text-yellow-300" />Semester</label>
-          <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-3 rounded-md text-black">
+          <label htmlFor="semester-select" className="block text-lg mb-2">
+            <FaGraduationCap className="inline mr-2 text-yellow-300" />
+            Semester
+          </label>
+          <select
+            id="semester-select"
+            value={selected.semester || ''}
+            onChange={e => dispatch(setSemester(e.target.value))}
+            className="w-full p-3 rounded-md text-black"
+            disabled={!selected.course}
+            aria-label="Select Semester"
+          >
             <option value="">-- Select Semester --</option>
-            {filters.semesters.length > 0 ? (
-              filters.semesters.map((s, i) => <option key={i} value={s}>{s}</option>)
+            {filters.semesters && filters.semesters.length > 0 ? (
+              filters.semesters.map((s, i) => (
+                <option key={i} value={s}>{s}</option>
+              ))
             ) : (
-              <option disabled>No semesters available</option>
+              <option disabled>{selected.course ? 'Loading Semesters...' : 'Select Course First'}</option>
             )}
           </select>
         </div>
 
-        <button onClick={fetchNotes} className="mt-4 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-md shadow-lg flex items-center justify-center mx-auto">
-          <FaSearch className="mr-2" /> Search
+        <button
+          onClick={handleSearch}
+          disabled={!selected.college || !selected.course || !selected.semester || loading}
+          className="bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 font-semibold px-6 py-3 rounded-md text-black w-full flex items-center justify-center space-x-2"
+          aria-label="Search Notes"
+        >
+          <FaSearch />
+          <span>Search</span>
         </button>
       </div>
 
-      <div className="mt-8">
-        {loading && <p className="text-white text-xl">Loading notes...</p>}
-        {error && <p className="text-red-400 text-xl">{error}</p>}
+      <div className="mt-10 max-w-4xl mx-auto text-left">
+        {loading && <p className="text-yellow-300 font-semibold">Loading notes...</p>}
+        {error && <p className="text-red-400 font-semibold">{error}</p>}
 
-          <div className="mt-6 space-y-6">
-            {notes.map((note, i) => (
-              <div key={i} className="bg-white text-black p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
-                <p className="mb-2">{note.description}</p>
+        {!loading && !error && notes.length > 0 && (
+          <ul className="space-y-6">
+            {notes.map(note => (
+              <li key={note._id} className="bg-white rounded-lg p-4 shadow-md text-black">
+                <h3 className="text-xl font-bold mb-2">{note.title}</h3>
+                <p className="mb-1"><strong>Description:</strong> {note.description}</p>
+                <p className="mb-1"><strong>College:</strong> {note.college}</p>
+                <p className="mb-1"><strong>Course:</strong> {note.course}</p>
+                <p className="mb-1"><strong>Semester:</strong> {note.semester}</p>
+                <p className="mb-1"><strong>Uploaded By:</strong> {note.uploadedBy}</p>
+                <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
                 <a
-                  href={`http://localhost:5000/${note.fileUrl}`}
-                  download
-                  className="inline-block mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                  href={note.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+                  aria-label={`Download ${note.title}`}
                 >
-                  <FaDownload className="inline mr-2" /> Download
+                  <FaDownload className="mr-2" />
+                  Download PDF
                 </a>
-              </div>
+              </li>
             ))}
-          </div>
-      
+          </ul>
+        )}
       </div>
     </section>
   );

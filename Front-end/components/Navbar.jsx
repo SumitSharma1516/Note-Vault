@@ -1,26 +1,37 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { logout } from '../Redux/slices/authSlice'; // ensure this exists
+import axios from 'axios';
+const Navbar = ({ setIsLoginOpen, setIsRegisterOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-// console.log(user)
-  const logoutAndRedirect = () => {
-    handleLogout();
-    navigate('/');
-  };
+  const user = useSelector((state) => state.auth.user);
+  const imageBaseURL = 'http://localhost:5000/uploads/profile_photos/';
+const dispatch = useDispatch();
+
+const handleLogout = () => {
+  dispatch(logout());
+  localStorage.removeItem('token');
+  window.location.href = '/'; // or navigate('/')
+};
+
+const token = localStorage.getItem('token');
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 fixed w-full top-0 left-0 z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Brand */}
         <div className="text-white text-3xl font-bold">
-          <Link to="/">Note Vault</Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Note Vault</Link>
         </div>
 
-        {/* Hamburger */}
+        {/* Hamburger menu for mobile */}
         <div className="md:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)}>
+          <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
             <svg
               className="w-6 h-6 text-white"
               fill="none"
@@ -54,18 +65,29 @@ const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
               <Link to="/admin/dashboard" className="p-2 hover:text-yellow-300">Admin Dashboard</Link>
               <Link to="/admin/users" className="p-2 hover:text-yellow-300">All Users</Link>
               <Link to="/admin/notes" className="p-2 hover:text-yellow-300">All Notes</Link>
-              <button className="p-2 hover:text-yellow-300" onClick={logoutAndRedirect}>Logout</button>
+              {/* No logout button here */}
+              <div className="flex items-center space-x-3 ml-4">
+                <img
+                  src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
+                  alt="Admin"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+                />
+                <span className="text-white font-semibold text-lg">{user.name || user.username || 'Admin'}</span>
+              </div>
             </>
           ) : (
             <>
               <Link to="/dashboard" className="p-2 hover:text-yellow-300">Dashboard</Link>
               <Link to="/profile/upload-notes" className="p-2 hover:text-yellow-300">Upload Notes</Link>
               <Link to="/profile/update" className="p-2 hover:text-yellow-300">Update Profile</Link>
-              <div className="flex items-center space-x-3">
-                <img src={user.profilePic || '/default-user.png'} alt="User" className="w-8 h-8 rounded-full" />
-                <div className="text-white text-sm">{user.name}</div>
+              <div className="flex items-center space-x-3 ml-4">
+                <img
+                  src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
+                  alt="User"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+                />
+                <span className="text-white font-semibold text-lg">{user.name || user.username || 'User'}</span>
               </div>
-              <button className="p-2 hover:text-yellow-300" onClick={logoutAndRedirect}>Logout</button>
             </>
           )}
         </div>
@@ -76,31 +98,57 @@ const Navbar = ({ setIsLoginOpen, setIsRegisterOpen, user, handleLogout }) => {
         <div className="md:hidden mt-2 space-y-2 text-white bg-blue-700 p-4 rounded-md">
           {!user ? (
             <>
-              <Link to="/" className="block hover:text-yellow-300">Home</Link>
-              <Link to="/about" className="block hover:text-yellow-300">About</Link>
-              <Link to="/services" className="block hover:text-yellow-300">Services</Link>
-              <Link to="/blog" className="block hover:text-yellow-300">Blog</Link>
-              <Link to="/search" className="block hover:text-yellow-300">Search</Link>
-              <button className="block w-full text-left hover:text-yellow-300" onClick={() => setIsLoginOpen(true)}>Login</button>
-              <button className="block w-full text-left hover:text-yellow-300" onClick={() => setIsRegisterOpen(true)}>Register</button>
+              <Link to="/" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Home</Link>
+              <Link to="/about" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>About</Link>
+              <Link to="/services" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Services</Link>
+              <Link to="/blog" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Blog</Link>
+              <Link to="/search" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Search Notes</Link>
+              <button
+                className="block w-full text-left hover:text-yellow-300"
+                onClick={() => {
+                  setIsLoginOpen(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Login
+              </button>
+              <button
+                className="block w-full text-left hover:text-yellow-300"
+                onClick={() => {
+                  setIsRegisterOpen(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Register
+              </button>
             </>
           ) : user.role === 'admin' ? (
             <>
-              <Link to="/admin/dashboard" className="block hover:text-yellow-300">Admin Dashboard</Link>
-              <Link to="/admin/users" className="block hover:text-yellow-300">All Users</Link>
-              <Link to="/admin/notes" className="block hover:text-yellow-300">All Notes</Link>
-              <button className="block w-full text-left hover:text-yellow-300" onClick={logoutAndRedirect}>Logout</button>
+              <Link to="/admin/dashboard" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
+              <Link to="/admin/users" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>All Users</Link>
+              <Link to="/admin/notes" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>All Notes</Link>
+              <div className="flex items-center space-x-3 mt-2">
+                <img
+                  src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
+                  alt="Admin"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+                />
+                <span className="text-white font-semibold text-lg">{user.name || user.username || 'Admin'}</span>
+              </div>
             </>
           ) : (
             <>
-              <Link to="/dashboard" className="block hover:text-yellow-300">Dashboard</Link>
-              <Link to="/profile/upload-notes" className="block hover:text-yellow-300">Upload Notes</Link>
-              <Link to="/profile/update" className="block hover:text-yellow-300">Update Profile</Link>
+              <Link to="/dashboard" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+              <Link to="/profile/upload-notes" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Upload Notes</Link>
+              <Link to="/profile/update" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Update Profile</Link>
               <div className="flex items-center space-x-3 mt-2">
-                <img src={user.profilePic || '/default-user.png'} alt="User" className="w-8 h-8 rounded-full" />
-                <div className="text-white text-sm">{user.name}</div>
+                <img
+                  src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
+                  alt="User"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+                />
+                <span className="text-white font-semibold text-lg">{user.name || user.username || 'User'}</span>
               </div>
-              <button className="block w-full text-left hover:text-yellow-300" onClick={logoutAndRedirect}>Logout</button>
             </>
           )}
         </div>

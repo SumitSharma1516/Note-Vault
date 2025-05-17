@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllNotes } from '../Redux/slices/notesSlice';
 
 const AdminAllNotes = () => {
-  const [notes, setNotes] = useState([]);
+  const dispatch = useDispatch();
+  const { allNotes, loading, error } = useSelector((state) => state.notes);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/notes/all') // public API assumed
-      .then(res => setNotes(res.data))
-      .catch(err => console.error(err));
-  }, []);
- console.log(notes)
+    dispatch(fetchAllNotes());
+  }, [dispatch]);
+
   return (
     <div className="p-6">
       <h2 className="text-xl font-bold mb-4">All Uploaded Notes</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       <ul className="space-y-2">
-        {notes.map((note, i) => (
+        {allNotes.map((note, i) => (
           <li key={i} className="border p-4 rounded shadow">
             <h3 className="font-semibold">{note.title}</h3>
             <p>{note.description}</p>

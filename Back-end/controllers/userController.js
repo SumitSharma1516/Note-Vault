@@ -26,50 +26,6 @@ exports.getDashboard = async (req, res) => {
   }
 };
 
-// Example of incrementing watchCount when note is viewed
-exports.incrementWatchCount = async (req, res) => {
-  try {
-    const note = await Note.findById(req.params.id);
-
-    if (!note) {
-      return res.status(404).json({ msg: 'Note not found' });
-    }
-
-    // Increment the watch count
-    note.watchCount += 1;
-
-    // Save the updated note
-    await note.save();
-
-    res.json({ msg: 'Watch count updated successfully', note });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
-
-// Example of incrementing downloadCount when note is downloaded
-exports.incrementDownloadCount = async (req, res) => {
-  try {
-    const note = await Note.findById(req.params.id);
-
-    if (!note) {
-      return res.status(404).json({ msg: 'Note not found' });
-    }
-
-    // Increment the download count
-    note.downloadCount += 1;
-
-    // Save the updated note
-    await note.save();
-
-    res.json({ msg: 'Download count updated successfully', note });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
-
 
 // Update User Profile
 exports.updateProfile = async (req, res) => {
@@ -93,6 +49,19 @@ exports.updateProfile = async (req, res) => {
     await user.save();
 
     res.json({ msg: 'Profile updated successfully', user });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// Get User Details
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password'); // exclude password
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

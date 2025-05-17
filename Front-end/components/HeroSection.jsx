@@ -20,7 +20,7 @@ const HeroSection = () => {
        const fetchFilters = async () => {
          try {
            // const response = await fetch('https://note-vault-hiiy.onrender.com/notes/filters');
-           const response =  await fetch('http://localhost:5000/notes/filters')
+           const response =  await fetch('https://note-vault-hiiy.onrender.com/notes/filters')
            const data = await response.json();
            setFilters({
              colleges: data.colleges || [],
@@ -48,7 +48,7 @@ const HeroSection = () => {
    
      try {
        const query = new URLSearchParams({ college, course, semester });
-       const response = await fetch(`http://localhost:5000/notes/all?${query.toString()}`);
+       const response = await fetch(`https://note-vault-hiiy.onrender.com/notes/all?${query.toString()}`);
        const data = await response.json();
        console.log(data);
    
@@ -238,7 +238,7 @@ const HeroSection = () => {
                   <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
                   <p className="mb-2">{note.description}</p>
                   <a
-                    href={`http://localhost:5000/uploads/${note.fileUrl}`}
+                    href={`https://note-vault-hiiy.onrender.com/uploads/${note.fileUrl}`}
                     download
                     className="inline-block mt-3 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
                   >

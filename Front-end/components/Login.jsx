@@ -1,56 +1,44 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { login } from '../Redux/slices/authSlice';
 
-const Login = ({ handleLogin, setIsLoginOpen }) => {
+const Login = ({ setIsLoginOpen }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     try {
-      let response;
-
       if (username === 'Sumitshar2452@gmail.com') {
-        // Admin login
-        console.log("admin");
-        response = await axios.post('http://localhost:5000/admin/login', {
+        // Admin login (manual axios)
+        const response = await axios.post('https://note-vault-hiiy.onrender.com/admin/login', {
           email: username,
           password,
         });
 
         if (response.data.msg === 'Admin logged in successfully') {
           const { token, role, email } = response.data;
-          localStorage.setItem('token', token);
           const adminUser = { token, role, email };
-          localStorage.setItem('user', JSON.stringify(adminUser));
-          handleLogin(adminUser);
+          localStorage.setItem('adminUser', JSON.stringify(adminUser));
+          // You can create a separate admin slice if needed and dispatch here
+          console.log(response)
           setIsLoginOpen(false);
         } else {
           setError('Invalid admin credentials');
         }
       } else {
-        // Regular user login
-        console.log("user");
-        response = await axios.post('http://localhost:5000/auth/login', {
-          username,
-          password,
-        });
-
-        const { token, user } = response.data;
-        if (response.data.msg === 'User Login') {
-          const userData = {
-            token,
-            role: 'user',
-            ...user,
-          };
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          handleLogin(userData);
+        // User login (via Redux thunk)
+        const resultAction = await dispatch(login({ username, password }));
+        if (login.fulfilled.match(resultAction)) {
+          localStorage.setItem('token', resultAction.payload.token);
           setIsLoginOpen(false);
         } else {
-          setError('Invalid user credentials');
+          setError(resultAction.payload || 'Invalid user credentials');
         }
       }
     } catch (err) {

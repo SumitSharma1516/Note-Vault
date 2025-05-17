@@ -8,6 +8,8 @@ const NoteSchema = new mongoose.Schema({
   semester: { type: String, required: true },
   fileUrl: { type: String, required: true },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  uploadedByName: String, // optional, denormalized for display
+  createdAt: { type: Date, default: Date.now },
   watchCount: { type: Number, default: 0 },
   downloadCount: { type: Number, default: 0 },
 }, { timestamps: true });

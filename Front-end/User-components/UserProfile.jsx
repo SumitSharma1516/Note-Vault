@@ -20,7 +20,7 @@ const UserProfile = () => {
   useEffect(() => {
     if (profile) {
       setUsername(profile.username || '');
-      setPreview(profile.photo ? `http://localhost:5000/uploads/profile_photos/${profile.photo}` : '');
+      setPreview(profile.photo ? `https://note-vault-hiiy.onrender.com/uploads/profile_photos/${profile.photo}` : '');
     }
   }, [profile]);
 
@@ -42,7 +42,7 @@ const UserProfile = () => {
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(file);
     } else {
-      setPreview(profile?.photo ? `http://localhost:5000/uploads/profile_photos/${profile.photo}` : '');
+      setPreview(profile?.photo ? `https://note-vault-hiiy.onrender.com/uploads/profile_photos/${profile.photo}` : '');
     }
   };
 
@@ -114,7 +114,7 @@ const UserProfile = () => {
         <input
           id="username"
           type="text"
-          value={username}
+          // value={''}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter new username"
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -126,7 +126,7 @@ const UserProfile = () => {
         <input
           id="password"
           type="password"
-          value={password}
+          // value={''}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Leave blank to keep unchanged"
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"

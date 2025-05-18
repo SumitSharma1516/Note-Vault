@@ -33,7 +33,7 @@ router.get('/watch/:id', incrementWatchCount);
 router.get('/download/:id', incrementDownloadCount);
 
 // Get all notes (admin view)
-router.get('/all', adminAuth, async (req, res) => {
+router.get('/admin/all', adminAuth, async (req, res) => {
   try {
     const notes = await Note.find().populate('uploadedBy', 'fullName username');
     const notesWithUploader = notes.map(note => ({

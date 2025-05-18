@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://note-vault-hiiy.onrender.com';
 
 // ===== Thunks =====
 export const uploadNote = createAsyncThunk(
@@ -14,7 +14,7 @@ export const uploadNote = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Upload failed');
+      return rejectWithValue(err.response?.data?.message || 'Upload failed');
     }
   }
 );
@@ -24,9 +24,10 @@ export const fetchAllNotes = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${API_URL}/notes/all`);
+      console.log(res)
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Failed to fetch notes');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch notes');
     }
   }
 );
@@ -35,12 +36,12 @@ export const fetchFilteredNotes = createAsyncThunk(
   'notes/fetchFilteredNotes',
   async ({ college, course, semester }, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${API_URL}/notes/filters`, {
+      const res = await axios.get(`${API_URL}/notes/all`, {
         params: { college, course, semester },
       });
-      return res.data;
+      return res.data.notes || res.data; // adjust based on API response
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Failed to fetch filtered notes');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch filtered notes');
     }
   }
 );
@@ -50,9 +51,9 @@ export const fetchColleges = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get(`${API_URL}/notes/filters`);
-      return res.data.colleges;
+      return res.data.colleges || [];
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Failed to fetch colleges');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch colleges');
     }
   }
 );
@@ -64,9 +65,9 @@ export const fetchCourses = createAsyncThunk(
       const res = await axios.get(`${API_URL}/notes/filters`, {
         params: { college },
       });
-      return res.data.courses;
+      return res.data.courses || [];
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Failed to fetch courses');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch courses');
     }
   }
 );
@@ -78,13 +79,12 @@ export const fetchSemesters = createAsyncThunk(
       const res = await axios.get(`${API_URL}/notes/filters`, {
         params: { college, course },
       });
-      return res.data.semesters;
+      return res.data.semesters || [];
     } catch (err) {
-      return rejectWithValue(err.response.data.message || 'Failed to fetch semesters');
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch semesters');
     }
   }
 );
-
 
 // ===== Initial State =====
 const initialState = {
@@ -92,12 +92,17 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
-  college: '',
-  course: '',
-  semester: '',
-  colleges: [],
-  courses: [],
-  semesters: [],
+  filters: {
+    colleges: [],
+    courses: [],
+    semesters: [],
+  },
+  selected: {
+    college: '',
+    course: '',
+    semester: '',
+  },
+  watchedNotes: [],
 };
 
 // ===== Slice =====
@@ -110,30 +115,34 @@ const notesSlice = createSlice({
       state.error = null;
     },
     setCollege(state, action) {
-      state.college = action.payload;
-      state.course = '';
-      state.semester = '';
+      state.selected.college = action.payload;
+      state.selected.course = '';
+      state.selected.semester = '';
+      state.filters.courses = [];
+      state.filters.semesters = [];
     },
     setCourse(state, action) {
-      state.course = action.payload;
-      state.semester = '';
+      state.selected.course = action.payload;
+      state.selected.semester = '';
+      state.filters.semesters = [];
     },
     setSemester(state, action) {
-      state.semester = action.payload;
+      state.selected.semester = action.payload;
     },
     resetWatchedNotes(state) {
-      state.notes = [];
+      state.watchedNotes = [];
     },
     addWatchedNote(state, action) {
       const note = action.payload;
-      const exists = state.notes.find((n) => n._id === note._id);
+      const exists = state.watchedNotes.find((n) => n._id === note._id);
       if (!exists) {
-        state.notes.push(note);
+        state.watchedNotes.push(note);
       }
     },
   },
   extraReducers: (builder) => {
     builder
+      // Upload Note
       .addCase(uploadNote.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -148,6 +157,7 @@ const notesSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Fetch All Notes
       .addCase(fetchAllNotes.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -161,6 +171,7 @@ const notesSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Fetch Filtered Notes
       .addCase(fetchFilteredNotes.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -174,39 +185,42 @@ const notesSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Colleges
       .addCase(fetchColleges.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchColleges.fulfilled, (state, action) => {
         state.loading = false;
-        state.colleges = action.payload;
+        state.filters.colleges = action.payload;
       })
       .addCase(fetchColleges.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
+      // Courses
       .addCase(fetchCourses.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.courses = action.payload;
+        state.filters.courses = action.payload;
       })
       .addCase(fetchCourses.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
+      // Semesters
       .addCase(fetchSemesters.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchSemesters.fulfilled, (state, action) => {
         state.loading = false;
-        state.semesters = action.payload;
+        state.filters.semesters = action.payload;
       })
       .addCase(fetchSemesters.rejected, (state, action) => {
         state.loading = false;
@@ -226,7 +240,7 @@ export const {
 } = notesSlice.actions;
 
 export {
-  fetchFilteredNotes as fetchNotes,
+  fetchFilteredNotes as fetchNotes, // alias for clarity if needed
 };
 
 export default notesSlice.reducer;

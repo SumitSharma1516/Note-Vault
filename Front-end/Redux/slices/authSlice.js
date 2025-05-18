@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://note-vault-hiiy.onrender.com';
 
 // Login
 export const login = createAsyncThunk('auth/login', async ({ username, password }, { rejectWithValue }) => {
@@ -64,6 +64,9 @@ initialState: {
       state.isAdmin = false;
       state.error = null;
       state.success = false;
+      // Clear localStorage too
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
     },
     setCredentials(state, action) {
       // Guard against undefined payloads

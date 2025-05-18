@@ -14,13 +14,13 @@ import {
   resetWatchedNotes,
 } from '../Redux/slices/notesSlice';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://note-vault-hiiy.onrender.com';
 
 const SearchNotes = () => {
   const dispatch = useDispatch();
 
   const { filters = {}, selected = {}, notes = [], loading, error, watchedNotes = new Set() } = useSelector(state => state.notes);
-console.log(filters.colleges)
+
   useEffect(() => {
     dispatch(fetchColleges());
   }, [dispatch]);
@@ -38,12 +38,14 @@ console.log(filters.colleges)
   }, [dispatch, selected.college, selected.course]);
 
   useEffect(() => {
-    notes.forEach(note => {
-      if (!watchedNotes.has(note._id)) {
-        fetch(`${API_URL}/notes/watch/${note._id}`, { method: 'GET' }).catch(() => {});
-        dispatch(addWatchedNote(note._id));
-      }
-    });
+    if (Array.isArray(notes)) {
+      notes.forEach(note => {
+        if (!watchedNotes.includes(note._id)) {
+          fetch(`${API_URL}/notes/watch/${note._id}`, { method: 'GET' }).catch(() => {});
+          dispatch(addWatchedNote(note._id));
+        }
+      });
+    }
   }, [notes, watchedNotes, dispatch]);
 
   const handleSearch = () => {
@@ -155,7 +157,9 @@ console.log(filters.colleges)
                 <p className="mb-1"><strong>College:</strong> {note.college}</p>
                 <p className="mb-1"><strong>Course:</strong> {note.course}</p>
                 <p className="mb-1"><strong>Semester:</strong> {note.semester}</p>
-                <p className="mb-1"><strong>Uploaded By:</strong> {note.uploadedBy}</p>
+                <p className="mb-1">
+                  <strong>Uploaded By:</strong> {note.uploadedBy?.username || 'Unknown'}
+                </p>
                 <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
                 <a
                   href={note.file}

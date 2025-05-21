@@ -49,15 +49,15 @@ const Login = ({ setIsLoginOpen }) => {
 
   return (
     <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
-      <h2 className="text-2xl font-semibold mb-4">Login</h2>
+      <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-center text-blue-600">Login</h2>
       {error && <p className="text-red-500 mb-2">{error}</p>}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className='space-y-2'>
         <input
           type="text"
           placeholder="Username or Admin Email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
         <input
@@ -65,19 +65,19 @@ const Login = ({ setIsLoginOpen }) => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 "
           required
         />
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Login
         </button>
         <button
           type="button"
           onClick={() => setIsLoginOpen(false)}
-          className="w-full mt-2 text-gray-500 hover:text-gray-800 text-sm"
+          className="w-full p-3 mt-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
         >
           Cancel
         </button>

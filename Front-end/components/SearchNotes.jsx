@@ -47,7 +47,7 @@ const SearchNotes = () => {
       });
     }
   }, [notes, watchedNotes, dispatch]);
-
+console.log(notes)
   const handleSearch = () => {
     if (!selected.college || !selected.course || !selected.semester) {
       alert('Please select college, course, and semester!');
@@ -57,6 +57,7 @@ const SearchNotes = () => {
     dispatch(resetWatchedNotes());
   };
 
+   const getFileUrl = (fileId) => `${API_URL}/files/${fileId}`;
   return (
     <section className="p-10 sm:p-16 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-center">
       <h2 className="text-4xl font-bold mb-6">🔍 Search Notes & Papers</h2>
@@ -145,8 +146,8 @@ const SearchNotes = () => {
       </div>
 
       <div className="mt-10 max-w-4xl mx-auto text-left">
-        {loading && <p className="text-yellow-300 font-semibold">Loading notes...</p>}
-        {error && <p className="text-red-400 font-semibold">{error}</p>}
+        {/* {loading && <p className="text-yellow-300 font-semibold">Loading notes...</p>}
+        {error && <p className="text-red-400 font-semibold">{error}</p>} */}
 
         {!loading && !error && notes.length > 0 && (
           <ul className="space-y-6">
@@ -158,11 +159,11 @@ const SearchNotes = () => {
                 <p className="mb-1"><strong>Course:</strong> {note.course}</p>
                 <p className="mb-1"><strong>Semester:</strong> {note.semester}</p>
                 <p className="mb-1">
-                  <strong>Uploaded By:</strong> {note.uploadedBy?.username || 'Unknown'}
+                  <strong>Uploaded By:</strong> {note.uploadedBy?.fullName || 'Unknown'}
                 </p>
                 <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
-                <a
-                  href={note.file}
+                    <a
+                  href={getFileUrl(note.fileUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"

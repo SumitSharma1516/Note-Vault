@@ -16,13 +16,13 @@ const AdminAllNotes = () => {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <ul className="space-y-2">
-        {allNotes.map((note, i) => (
+        {/* {allNotes.map((note, i) => (
           <li key={i} className="border p-4 rounded shadow">
             <h3 className="font-semibold">{note.title}</h3>
             <p>{note.description}</p>
             <p className="text-sm text-gray-600">Uploaded By: {note.uploadedBy}</p>
           </li>
-        ))}
+        ))} */}
       </ul>
     </div>
   );

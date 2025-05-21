@@ -49,7 +49,7 @@ export const updateProfile = createAsyncThunk(
 
 const authSlice = createSlice({
   name: 'auth',
-initialState: {
+ initialState: {
   user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
   token: localStorage.getItem('token') || null,
   isAdmin: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).role !== 'user' : false,

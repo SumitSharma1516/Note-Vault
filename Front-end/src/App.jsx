@@ -40,7 +40,7 @@ function App() {
   const { user, isAdmin } = useSelector((state) => state.auth);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
+console.log(isAdmin)
   const handleLogin = (userData) => {
     dispatch(login(userData));
     setIsLoginOpen(false);
@@ -97,7 +97,7 @@ if (token) {
         <Route path="/footer" element={<Footer />} />
 
         {/* Admin Routes */}
-        {/* <Route
+        <Route
           path="/admin/dashboard"
           element={<AdminRoute><AdminDashboard /></AdminRoute>}
         />
@@ -108,7 +108,7 @@ if (token) {
         <Route
           path="/admin/notes"
           element={<AdminRoute><AllNotes /></AdminRoute>}
-        /> */}
+        />
 
         {/* User Routes */}
         <Route

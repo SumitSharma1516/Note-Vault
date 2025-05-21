@@ -2,25 +2,28 @@ const Note = require('../models/Note');
 
 // Upload Notes
 exports.uploadNotes = async (req, res) => {
-  const { title, description, college, course, semester } = req.body;
+  const { title, description, college, course, semester,uploadedBy  } = req.body;
   const file = req.file;
-  
+   const noteFile = req.files['notes']?.[0];
+     if (!noteFile) {
+      return res.status(400).json({ error: 'Notes file (PDF) is required' });
+    }
   try {
-    const newNote = new Note({
+        const newNote = new Note({
       title,
       description,
       college,
       course,
       semester,
-      fileUrl: file.filename,
-      uploadedBy: req.user._id
+      uploadedBy,
+      fileUrl: `/uploads/notes/${noteFile.filename}`,
     });
 
     await newNote.save();
-    res.json({ msg: 'Note uploaded successfully' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(201).json({ message: 'Note uploaded successfully', note: newNote });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Server error while uploading note' });
   }
 };
 

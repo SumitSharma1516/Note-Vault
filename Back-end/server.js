@@ -26,13 +26,19 @@ if (!fs.existsSync(uploadDir)) {
   console.log('Created uploads/profile_photos folder');
 }
 
-// Multer storage config
+// Storage setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, './uploads/profile_photos'),
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + path.extname(file.originalname);
-    cb(null, uniqueName);
+  destination: function (req, file, cb) {
+    if (file.fieldname === 'notes') {
+      cb(null, './uploads/notes');
+    } else if (file.fieldname === 'photo') {
+      cb(null, './uploads/photos');
+    }
   },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
 });
 const upload = multer({
   storage,
@@ -47,6 +53,23 @@ const upload = multer({
     }
   }
 });
+
+// File filter
+const fileFilter = (req, file, cb) => {
+  if (file.fieldname === 'notes') {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files allowed for notes'), false);
+    }
+  } else if (file.fieldname === 'photo') {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files allowed for photo'), false);
+    }
+  }
+};
 
 // Middleware
 app.use(express.json());

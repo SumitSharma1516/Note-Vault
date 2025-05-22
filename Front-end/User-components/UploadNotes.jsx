@@ -31,7 +31,7 @@ const UploadNotes = () => {
     if (photoFile) formData.append('photo', photoFile); // Optional
 
   try {
-  const response = await axios.post('http://localhost:5000/notes/upload', formData, {
+  const response = await axios.post('https://note-vault-hiiy.onrender.com/notes/upload', formData, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data',

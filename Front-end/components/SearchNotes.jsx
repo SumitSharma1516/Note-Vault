@@ -14,7 +14,7 @@ import {
   resetWatchedNotes,
 } from '../Redux/slices/notesSlice';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://note-vault-hiiy.onrender.com';
 
 const SearchNotes = () => {
   const dispatch = useDispatch();
@@ -162,7 +162,7 @@ const SearchNotes = () => {
           </p>
           <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
           <a
-            href={`http://localhost:5000/notes/download/${note._id}`}
+            href={`https://note-vault-hiiy.onrender.com/notes/download/${note._id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"

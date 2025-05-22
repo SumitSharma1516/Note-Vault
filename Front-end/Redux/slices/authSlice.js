@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 const storedUser = localStorage.getItem('user');
 const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://note-vault-hiiy.onrender.com';
 
 // Login
 export const login = createAsyncThunk('auth/login', async ({ username, password }, { rejectWithValue }) => {

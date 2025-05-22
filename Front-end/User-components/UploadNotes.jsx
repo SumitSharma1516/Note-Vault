@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
-// Action example to update notes list (aap apne store ke hisaab se change karna)
 const noteUploadSuccess = (newNote) => ({
   type: 'notes/addNote',
   payload: newNote,
@@ -15,35 +14,42 @@ const UploadNotes = () => {
   const [form, setForm] = useState({
     title: '', description: '', college: '', course: '', semester: ''
   });
-  const [file, setFile] = useState(null);
+  const [notesFile, setNotesFile] = useState(null); // PDF
+  const [photoFile, setPhotoFile] = useState(null); // Image
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!file) {
-      alert("Please select a file to upload.");
+    if (!notesFile) {
+      alert("Please select a PDF file for notes.");
       return;
     }
+
     setLoading(true);
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
-    formData.append('file', file);
+    formData.append('notes', notesFile); // Must match multer field
+    if (photoFile) formData.append('photo', photoFile); // Optional
 
-    try {
-      const response = await axios.post('https://note-vault-hiiy.onrender.com/notes/upload', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert("Note Uploaded!");
-
-      // Dispatch action to Redux store - aap apne notes reducer ko update kar sakte ho
-      dispatch(noteUploadSuccess(response.data));
-
-      // Clear form
-      setForm({ title: '', description: '', college: '', course: '', semester: '' });
-      setFile(null);
-    } catch (err) {
-      alert("Upload Failed");
-      console.error(err);
+  try {
+  const response = await axios.post('http://localhost:5000/notes/upload', formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
     }
+  });
+
+  alert("Note Uploaded!");
+  dispatch(noteUploadSuccess(response.data));  // response.data contains the saved note
+
+  // Reset form inputs only (do not add fileUrl or uploadedBy here)
+  setForm({ title: '', description: '', college: '', course: '', semester: '' });
+  setNotesFile(null);
+  setPhotoFile(null);
+
+} catch (err) {
+  alert("Upload Failed");
+  console.error(err);
+}
     setLoading(false);
   };
 
@@ -60,12 +66,24 @@ const UploadNotes = () => {
           className="block w-full p-2 border rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       ))}
+
+      <label className="block mb-2 font-medium">Upload PDF Notes</label>
       <input
         type="file"
         name="file"
-        onChange={e => setFile(e.target.files[0])}
+        // accept="application/pdf"
+        onChange={e => setNotesFile(e.target.files[0])}
         className="mb-4 w-full"
       />
+
+      {/* <label className="block mb-2 font-medium">Upload Image (Optional)</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setPhotoFile(e.target.files[0])}
+        className="mb-4 w-full"
+      /> */}
+
       <button
         onClick={handleSubmit}
         disabled={loading}

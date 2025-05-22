@@ -6,20 +6,21 @@ const bcrypt = require('bcryptjs');
 // Get User Dashboard Stats
 exports.getDashboard = async (req, res) => {
   try {
-    // Fetch all notes uploaded by the user
     const notes = await Note.find({ uploadedBy: req.user.id });
-    //  res.json(notes)
-    // console.log('Fetched Notes:', notes);
+
     if (notes.length === 0) {
-      return res.json({ notes: 0, watchCount: 0, downloadCount: 0 });
+      return res.json({ notes: 0, watchCount: 0, downloadCount: 0, userNotes: [] });
     }
 
-    // Calculate watchCount and downloadCount
-    const watchCount = notes.reduce((acc, note) => acc + note.watchCount, 0);
-    const downloadCount = notes.reduce((acc, note) => acc + note.downloadCount, 0);
+    const watchCount = notes.reduce((acc, note) => acc + (note.watchCount || 0), 0);
+    const downloadCount = notes.reduce((acc, note) => acc + (note.downloadCount || 0), 0);
 
-    // Return the dashboard stats
-    res.json({ notes: notes.length, watchCount, downloadCount });
+    res.json({ 
+      notes: notes.length, 
+      watchCount, 
+      downloadCount,
+      userNotes: notes // ✅ Added here
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

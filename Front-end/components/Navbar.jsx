@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { logout } from '../Redux/slices/authSlice'; // ensure this exists
+import { adminLogin } from '../Redux/slices/adminSlice';
 import axios from 'axios';
 const Navbar = ({ setIsLoginOpen, setIsRegisterOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  const imageBaseURL = 'https://note-vault-hiiy.onrender.com/uploads/profile_photos/';
+  const imageBaseURL = 'http://localhost:5000/uploads/profile_photos/';
 const dispatch = useDispatch();
+ useEffect(() => {
+    const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+    if (adminUser) {
+      dispatch(adminLogin(adminUser));
+    }
+  }, []);
+ const { isAuthenticated, role, email } = useSelector(state => state.admin);
+// or combined state if you store admin/user in same slice
 
-const handleLogout = () => {
-  dispatch(logout());
-  localStorage.removeItem('token');
-  window.location.href = '/'; // or navigate('/')
-};
-
+console.log('Navbar auth state:', { isAuthenticated, role });
 const token = localStorage.getItem('token');
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -66,28 +69,35 @@ if (token) {
               <Link to="/admin/users" className="p-2 hover:text-yellow-300">All Users</Link>
               <Link to="/admin/notes" className="p-2 hover:text-yellow-300">All Notes</Link>
               {/* No logout button here */}
-              <div className="flex items-center space-x-3 ml-4">
+              {/* <div className="flex items-center space-x-3 ml-4">
                 <img
                   src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
                   alt="Admin"
                   className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                 />
                 <span className="text-white font-semibold text-lg">{user.name || user.username || 'Admin'}</span>
-              </div>
+              </div> */}
             </>
           ) : (
             <>
               <Link to="/dashboard" className="p-2 hover:text-yellow-300">Dashboard</Link>
               <Link to="/profile/upload-notes" className="p-2 hover:text-yellow-300">Upload Notes</Link>
               <Link to="/profile/update" className="p-2 hover:text-yellow-300">Update Profile</Link>
-              <div className="flex items-center space-x-3 ml-4">
-                <img
-                  src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
-                  alt="User"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
-                />
-                <span className="text-white font-semibold text-lg">{user.name || user.username || 'User'}</span>
-              </div>
+             <div className="flex items-center space-x-3 ml-4">
+  <img
+    src={
+      user?.profilePic
+        ? `http://localhost:5000/uploads/profile_photos/${user.profilePic}`
+        : '/default-user.png'
+    }
+    alt="User"
+    onError={(e) => (e.target.src = '/default-user.png')}
+    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+  />
+  <span className="text-white font-semibold text-lg">
+    {user?.name || user?.username || 'User'}
+  </span>
+</div>
             </>
           )}
         </div>
@@ -127,14 +137,14 @@ if (token) {
               <Link to="/admin/dashboard" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>Admin Dashboard</Link>
               <Link to="/admin/users" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>All Users</Link>
               <Link to="/admin/notes" className="block hover:text-yellow-300" onClick={() => setMenuOpen(false)}>All Notes</Link>
-              <div className="flex items-center space-x-3 mt-2">
+              {/* <div className="flex items-center space-x-3 mt-2">
                 <img
                   src={user.profilePic ? imageBaseURL + user.profilePic : '/default-user.png'}
                   alt="Admin"
                   className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                 />
                 <span className="text-white font-semibold text-lg">{user.name || user.username || 'Admin'}</span>
-              </div>
+              </div> */}
             </>
           ) : (
             <>

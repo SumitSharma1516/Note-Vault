@@ -1,10 +1,16 @@
 const Note = require('../models/Note');
-
+const path = require('path');
 // Upload Notes
 exports.uploadNotes = async (req, res) => {
   const { title, description, college, course, semester,uploadedBy  } = req.body;
-  const file = req.file;
-   const noteFile = req.files['notes']?.[0];
+
+  
+
+// Assuming you have middleware that sets req.user.id or req.user._id after decoding JWT
+    const userId = req.user.id || req.user._id;
+
+      const noteFile = req.files && req.files['notes'] ? req.files['notes'][0] : null;
+    const photoFile = req.files && req.files['photo'] ? req.files['photo'][0] : null;
      if (!noteFile) {
       return res.status(400).json({ error: 'Notes file (PDF) is required' });
     }
@@ -15,8 +21,9 @@ exports.uploadNotes = async (req, res) => {
       college,
       course,
       semester,
-      uploadedBy,
+      uploadedBy:userId,
       fileUrl: `/uploads/notes/${noteFile.filename}`,
+      photoUrl: photoFile ? `/uploads/photos/${photoFile.filename}` : null,
     });
 
     await newNote.save();
@@ -124,17 +131,29 @@ exports.incrementWatchCount = async (req, res) => {
 };
 
 // Increment download count when user downloads a note
-exports.incrementDownloadCount = async (req, res) => {
+exports.downloadNote = async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
     if (!note) {
       return res.status(404).json({ msg: 'Note not found' });
     }
-    note.downloadCount += 1;
+
+    // Increment download count
+    note.downloadCount = (note.downloadCount || 0) + 1;
     await note.save();
-    res.json({ msg: 'Download count updated successfully', note });
+
+    // Construct full file path
+    const filePath = path.join(__dirname, '..', 'uploads', 'notes', path.basename(note.fileUrl));
+
+    // Send file for download
+    res.download(filePath, (err) => {
+      if (err) {
+        console.error('File download error:', err);
+        return res.status(500).send('Error downloading file');
+      }
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
-};
+}

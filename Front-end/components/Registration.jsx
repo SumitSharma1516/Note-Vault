@@ -23,7 +23,7 @@ const Registration = ({ setIsRegisterOpen }) => {
     }
 
     try {
-      const res = await fetch('https://note-vault-hiiy.onrender.com/auth/register', {
+      const res = await fetch('http://localhost:5000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, username, email, mobile, dob, password }),

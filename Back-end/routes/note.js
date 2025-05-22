@@ -2,24 +2,37 @@ const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
 const adminAuth = require('../middleware/adminAuth');
-const { uploadNotes, getAllNotes, getAdminFilteredNotes, getFilters, incrementWatchCount, incrementDownloadCount } = require('../controllers/noteController');
+const { uploadNotes, getAllNotes, getAdminFilteredNotes, getFilters, incrementWatchCount, downloadNote } = require('../controllers/noteController');
 const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 
-// Multer storage config
+// Use your multer configuration (same as in server.js or extract it)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    if (file.fieldname === 'notes') {
+      cb(null, './uploads/notes');
+    } else if (file.fieldname === 'photo') {
+      cb(null, './uploads/photos');
+    }
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
   }
 });
 const upload = multer({ storage });
 
 // Routes
-router.post('/upload', auth, upload.single('file'), uploadNotes);
+router.post(
+  '/upload',
+  auth,
+  upload.fields([
+    { name: 'notes', maxCount: 1 },
+    { name: 'photo', maxCount: 1 }
+  ]),
+  uploadNotes
+);
 
 // Public routes
 router.get('/filters', getFilters);
@@ -30,7 +43,7 @@ router.get('/admin', adminAuth, getAdminFilteredNotes);
 
 // New endpoints
 router.get('/watch/:id', incrementWatchCount);
-router.get('/download/:id', incrementDownloadCount);
+router.get('/download/:id', downloadNote);
 
 // Get all notes (admin view)
 router.get('/admin/all', adminAuth, async (req, res) => {

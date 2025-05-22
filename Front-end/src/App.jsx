@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { login, logout, updateProfile } from '../Redux/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, logout, updateProfile, setCredentials as setAuthCredentials } from '../Redux/slices/authSlice';
+import { setAdminCredentials, adminLogout } from '../Redux/slices/adminSlice';
+
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
@@ -31,43 +38,81 @@ function PrivateRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
-  const { user, isAdmin } = useSelector((state) => state.auth);
-  return user && isAdmin ? children : <Navigate to="/" replace />;
+  const admin = useSelector((state) => state.admin.adminUser);
+  return admin ? children : <Navigate to="/" replace />;
 }
 
 function App() {
   const dispatch = useDispatch();
-  const { user, isAdmin } = useSelector((state) => state.auth);
+  const auth = useSelector((state) => state.auth);
+  const admin = useSelector((state) => state.admin);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-console.log(isAdmin)
-  const handleLogin = (userData) => {
-    dispatch(login(userData));
+
+  useEffect(() => {
+    // Load auth data from localStorage
+    const authUser = JSON.parse(localStorage.getItem('authUser'));
+    const authToken = localStorage.getItem('authToken');
+
+    // Load admin data from localStorage
+    const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+    const adminToken = localStorage.getItem('adminToken');
+
+    if (authUser && authToken) {
+      dispatch(setAuthCredentials({ user: authUser, token: authToken, role: authUser.role }));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    if (adminUser && adminToken) {
+      dispatch(setAdminCredentials({ adminUser, token: adminToken }));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${adminToken}`;
+    }
+  }, [dispatch]);
+
+  const handleLogin = (userData, token, isAdminLogin = false) => {
+    if (isAdminLogin) {
+      dispatch(setAdminCredentials({ adminUser: userData, token }));
+      localStorage.setItem('adminUser', JSON.stringify(userData));
+      localStorage.setItem('adminToken', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setIsLoginOpen(false);
+      return;
+    }
+    // Normal user login
+    dispatch(login({ user: userData, token }));
+    localStorage.setItem('authUser', JSON.stringify(userData));
+    localStorage.setItem('authToken', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setIsLoginOpen(false);
   };
 
   const handleLogout = () => {
     dispatch(logout());
+    // dispatch(adminLogout());
+    localStorage.removeItem('authUser');
+    localStorage.removeItem('authToken');
+    // localStorage.removeItem('adminUser');
+    // localStorage.removeItem('adminToken');
+    delete axios.defaults.headers.common['Authorization'];
   };
 
   const handleProfileUpdate = (updatedUser) => {
     dispatch(updateProfile(updatedUser));
+    localStorage.setItem('authUser', JSON.stringify(updatedUser));
   };
 
-  // global data 
-const token = localStorage.getItem('token');
-if (token) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-}
   return (
     <div className="font-sans bg-gray-100 pt-16">
       <Navbar
         setIsLoginOpen={setIsLoginOpen}
         setIsRegisterOpen={setIsRegisterOpen}
-        user={user}
+        user={auth.user || admin.adminUser}
         handleLogout={handleLogout}
-        isAdmin={isAdmin}
+        isAdmin={!!admin.adminUser}
       />
+
+<AdminDashboard />
+
 
       {isLoginOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -82,9 +127,10 @@ if (token) {
       )}
 
       <Routes>
-        {!user ? (
+        {/* Redirect logic */}
+        {!auth.user && !admin.adminUser ? (
           <Route path="/" element={<HeroSection />} />
-        ) : isAdmin ? (
+        ) : admin.adminUser ? (
           <Route path="/" element={<Navigate to="/admin/dashboard" />} />
         ) : (
           <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -99,29 +145,53 @@ if (token) {
         {/* Admin Routes */}
         <Route
           path="/admin/dashboard"
-          element={<AdminRoute><AdminDashboard /></AdminRoute>}
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
         />
         <Route
           path="/admin/users"
-          element={<AdminRoute><AllUsers /></AdminRoute>}
+          element={
+            <AdminRoute>
+              <AllUsers />
+            </AdminRoute>
+          }
         />
         <Route
           path="/admin/notes"
-          element={<AdminRoute><AllNotes /></AdminRoute>}
+          element={
+            <AdminRoute>
+              <AllNotes />
+            </AdminRoute>
+          }
         />
 
         {/* User Routes */}
         <Route
           path="/profile/update"
-          element={<PrivateRoute><UserProfile user={user} onUpdate={handleProfileUpdate} /></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <UserProfile user={auth.user} onUpdate={handleProfileUpdate} />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/profile/upload-notes"
-          element={<PrivateRoute><UploadNotes /></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <UploadNotes />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/dashboard"
-          element={<PrivateRoute><UserStats user={user} /></PrivateRoute>}
+          element={
+            <PrivateRoute>
+              <UserStats user={auth.user} />
+            </PrivateRoute>
+          }
         />
 
         {/* Catch-all fallback */}

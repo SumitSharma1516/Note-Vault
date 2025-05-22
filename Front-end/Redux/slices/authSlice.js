@@ -1,8 +1,9 @@
 // Redux/slices/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-const API_URL = 'https://note-vault-hiiy.onrender.com';
+const storedUser = localStorage.getItem('user');
+const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+const API_URL = 'http://localhost:5000';
 
 // Login
 export const login = createAsyncThunk('auth/login', async ({ username, password }, { rejectWithValue }) => {
@@ -50,9 +51,9 @@ export const updateProfile = createAsyncThunk(
 const authSlice = createSlice({
   name: 'auth',
  initialState: {
-  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
+  user: parsedUser,
   token: localStorage.getItem('token') || null,
-  isAdmin: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).role !== 'user' : false,
+  isAdmin: parsedUser?.role !== 'user' || false,
   loading: false,
   error: null,
   success: false,

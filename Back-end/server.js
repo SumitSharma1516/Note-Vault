@@ -43,40 +43,48 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: function (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      return cb(null, true);
+    if (file.fieldname === 'notes') {
+      if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+      } else {
+        cb(new Error('Only PDF files allowed for notes'), false);
+      }
+    } else if (file.fieldname === 'photo') {
+      const allowedTypes = /jpeg|jpg|png/;
+      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = allowedTypes.test(file.mimetype);
+      if (extname && mimetype) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only images (jpeg, jpg, png) are allowed'), false);
+      }
     } else {
-      cb(new Error('Only images (jpeg, jpg, png) are allowed'));
+      cb(new Error('Invalid field'), false);
     }
   }
 });
 
-// File filter
-const fileFilter = (req, file, cb) => {
-  if (file.fieldname === 'notes') {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only PDF files allowed for notes'), false);
-    }
-  } else if (file.fieldname === 'photo') {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files allowed for photo'), false);
-    }
+const uploadFolders = [
+  path.join(__dirname, '/uploads/notes'),
+  path.join(__dirname, '/uploads/photos'),
+  path.join(__dirname, '/uploads/profile_photos')
+];
+
+uploadFolders.forEach(folder => {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder, { recursive: true });
+    console.log(`✅ Created folder: ${folder}`);
   }
-};
+});
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static folder setup - yeh line zaroor add karein
+app.use('/files/uploads/notes', express.static(path.join(__dirname, 'uploads/notes')));
+app.use('/uploads/photos', express.static(path.join(__dirname, '/uploads/photos')));
+app.use('/uploads/profile_photos', express.static(path.join(__dirname, '/uploads/profile_photos')));
 
 // Simple test route
 app.get('/', (req, res) => {

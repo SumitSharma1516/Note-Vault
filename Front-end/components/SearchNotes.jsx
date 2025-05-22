@@ -14,7 +14,7 @@ import {
   resetWatchedNotes,
 } from '../Redux/slices/notesSlice';
 
-const API_URL = 'https://note-vault-hiiy.onrender.com';
+const API_URL = 'http://localhost:5000';
 
 const SearchNotes = () => {
   const dispatch = useDispatch();
@@ -47,7 +47,7 @@ const SearchNotes = () => {
       });
     }
   }, [notes, watchedNotes, dispatch]);
-console.log(notes)
+// console.log(notes)
   const handleSearch = () => {
     if (!selected.college || !selected.course || !selected.semester) {
       alert('Please select college, course, and semester!');
@@ -57,7 +57,7 @@ console.log(notes)
     dispatch(resetWatchedNotes());
   };
 
-   const getFileUrl = (fileId) => `${API_URL}/files/${fileId}`;
+   const getFileUrl = (fileId) => `${API_URL}/files${fileId}`;
   return (
     <section className="p-10 sm:p-16 bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-center">
       <h2 className="text-4xl font-bold mb-6">🔍 Search Notes & Papers</h2>
@@ -144,39 +144,39 @@ console.log(notes)
           <span>Search</span>
         </button>
       </div>
+<div className="mt-10 max-w-4xl mx-auto text-left">
+  {/* {loading && <p className="text-yellow-300 font-semibold">Loading notes...</p>}
+  {error && <p className="text-red-400 font-semibold">{error}</p>} */}
 
-      <div className="mt-10 max-w-4xl mx-auto text-left">
-        {/* {loading && <p className="text-yellow-300 font-semibold">Loading notes...</p>}
-        {error && <p className="text-red-400 font-semibold">{error}</p>} */}
+  {!loading && !error && notes.length > 0 && (
+    <ul className="space-y-6">
+      {notes.map(note => (
+        <li key={note._id} className="bg-white rounded-lg p-4 shadow-md text-black">
+          <h3 className="text-xl font-bold mb-2">{note.title}</h3>
+          <p className="mb-1"><strong>Description:</strong> {note.description}</p>
+          <p className="mb-1"><strong>College:</strong> {note.college}</p>
+          <p className="mb-1"><strong>Course:</strong> {note.course}</p>
+          <p className="mb-1"><strong>Semester:</strong> {note.semester}</p>
+          <p className="mb-1">
+            <strong>Uploaded By:</strong> {note.uploadedBy?.username || 'Unknown'}
+          </p>
+          <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
+          <a
+            href={`http://localhost:5000/notes/download/${note._id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+            aria-label={`Download ${note.title}`}
+          >
+            <FaDownload className="mr-2" />
+            Download PDF
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-        {!loading && !error && notes.length > 0 && (
-          <ul className="space-y-6">
-            {notes.map(note => (
-              <li key={note._id} className="bg-white rounded-lg p-4 shadow-md text-black">
-                <h3 className="text-xl font-bold mb-2">{note.title}</h3>
-                <p className="mb-1"><strong>Description:</strong> {note.description}</p>
-                <p className="mb-1"><strong>College:</strong> {note.college}</p>
-                <p className="mb-1"><strong>Course:</strong> {note.course}</p>
-                <p className="mb-1"><strong>Semester:</strong> {note.semester}</p>
-                <p className="mb-1">
-                  <strong>Uploaded By:</strong> {note.uploadedBy?.fullName || 'Unknown'}
-                </p>
-                <p className="mb-3"><strong>Uploaded At:</strong> {new Date(note.createdAt).toLocaleDateString()}</p>
-                    <a
-                  href={getFileUrl(note.fileUrl)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
-                  aria-label={`Download ${note.title}`}
-                >
-                  <FaDownload className="mr-2" />
-                  Download PDF
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     </section>
   );
 };

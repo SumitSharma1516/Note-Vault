@@ -16,7 +16,7 @@ const UserStats = () => {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/user/dashboard', {
+        const response = await axios.get('https://note-vault-hiiy.onrender.com/user/dashboard', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStats(response.data);

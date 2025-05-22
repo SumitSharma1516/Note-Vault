@@ -7,7 +7,7 @@ import axios from 'axios';
 const Navbar = ({ setIsLoginOpen, setIsRegisterOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  const imageBaseURL = 'http://localhost:5000/uploads/profile_photos/';
+  const imageBaseURL = 'https://note-vault-hiiy.onrender.com/uploads/profile_photos/';
 const dispatch = useDispatch();
  useEffect(() => {
     const adminUser = JSON.parse(localStorage.getItem('adminUser'));

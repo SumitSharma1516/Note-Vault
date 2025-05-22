@@ -87,7 +87,7 @@ if (token) {
   <img
     src={
       user?.profilePic
-        ? `http://localhost:5000/uploads/profile_photos/${user.profilePic}`
+        ? `https://note-vault-hiiy.onrender.com/uploads/profile_photos/${user.profilePic}`
         : '/default-user.png'
     }
     alt="User"

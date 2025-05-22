@@ -91,7 +91,7 @@ app.get('/', (req, res) => {
   res.send('NoteVault API is working');
 });
 
-onst allowedOrigins = [
+const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://note-vault-woad.vercel.app'

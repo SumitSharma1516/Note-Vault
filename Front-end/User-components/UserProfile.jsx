@@ -20,7 +20,7 @@ const UserProfile = () => {
   useEffect(() => {
     if (profile) {
       setUsername(profile.username || '');
-      setPreview(profile.photo ? `http://localhost:5000/uploads/profile_photos/${profile.photo}` : '');
+      setPreview(profile.photo ? `https://note-vault-hiiy.onrender.com/uploads/profile_photos/${profile.photo}` : '');
     }
   }, [profile]);
 
@@ -42,7 +42,7 @@ const UserProfile = () => {
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(file);
     } else {
-      setPreview(profile?.photo ? `http://localhost:5000/uploads/profile_photos/${profile.photo}` : '');
+      setPreview(profile?.photo ? `https://note-vault-hiiy.onrender.com/uploads/profile_photos/${profile.photo}` : '');
     }
   };
 

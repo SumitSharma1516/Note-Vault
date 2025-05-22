@@ -91,20 +91,27 @@ app.get('/', (req, res) => {
   res.send('NoteVault API is working');
 });
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+onst allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://note-vault-woad.vercel.app'
+];
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // for Postman or server-to-server calls
-    if (allowedOrigins.indexOf(origin) === -1) {
+    if (!origin) return callback(null, true); // Allow server-to-server or Postman
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }
-    return callback(null, true);
   },
   credentials: true,
 }));
 
+// Trust proxy if behind load balancer or HTTPS proxy (Render uses this)
+app.set('trust proxy', 1)
 // User update route: username, password (optional), photo upload (optional)
 app.post('/user/update', upload.single('photo'), (req, res) => {
   try {
@@ -127,8 +134,6 @@ app.post('/user/update', upload.single('photo'), (req, res) => {
   }
 });
 
-//Test route
-app.get('/',(req,res)=>{res.send('NoteVault API is working')})
 
 // Routes
 app.use('/api/auth', authRoutes);

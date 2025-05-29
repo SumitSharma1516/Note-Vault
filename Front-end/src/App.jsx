@@ -125,7 +125,7 @@ function App() {
       <Routes>
         {/* Redirect logic */}
         {!auth.user && !admin.adminUser ? (
-          <Route path="/" element={<HeroSection />} />
+          <Route path="/" element={<HeroSection setIsLoginOpen={setIsLoginOpen}/>} />
         ) : admin.adminUser ? (
           <Route path="/" element={<Navigate to="/admin/dashboard" />} />
         ) : (

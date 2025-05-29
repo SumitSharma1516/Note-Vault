@@ -2,7 +2,7 @@ import AboutSection from './AboutSection'
 import SearchNotes from './SearchNotes';
 import BlogSection from './BlogSection';
 import ServiceSection from './ServiceSection'
-const HeroSection = () => {
+const HeroSection = ({setIsLoginOpen}) => {
    
   return<>
   <section className="bg-gradient-to-r from-green-400 to-blue-500 h-[80vh] text-white flex flex-col justify-center items-center px-4 sm:px-8 lg:px-16">
@@ -12,7 +12,7 @@ const HeroSection = () => {
     <p className="mt-4 text-lg sm:text-xl lg:text-2xl animate__animated animate__fadeIn animate__delay-1s text-center">
       Your one-stop platform for educational resources, notes, exam papers, and more!
     </p>
-    <button className="mt-6 px-6 py-2 bg-white text-black rounded-lg text-lg font-semibold shadow-lg hover:bg-gray-200 transition duration-300 ease-in-out">
+    <button onClick={() => setIsLoginOpen(true)} className="mt-6 px-6 py-2 bg-white text-black rounded-lg text-lg font-semibold shadow-lg hover:bg-gray-200 transition duration-300 ease-in-out">
       Get Started
     </button>
   </section>
